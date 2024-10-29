@@ -160,7 +160,7 @@ export const global_gauge_weight_columns: ColumnDef<Gauge>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Deposit LP"
+        title="Deposit Receipt Token"
         className="whitespace-nowrap"
       />
     ),
