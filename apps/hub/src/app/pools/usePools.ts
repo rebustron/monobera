@@ -57,6 +57,8 @@ export const usePools = ({ keyword }: { keyword: string }) => {
   );
 
   const mergedPools = useMemo(() => {
+    console.log("MERGING POOLS", pools, walletPools);
+
     if (!pools) return pools;
     if (!walletPools) return pools;
 
