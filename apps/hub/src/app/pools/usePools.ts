@@ -52,7 +52,7 @@ export const usePools = ({ keyword }: { keyword: string }) => {
       return pools.data?.poolGetPools ?? [];
     },
     {
-      refreshInterval: POLLING.SLOW,
+      refreshInterval: POLLING.NORMAL,
     },
   );
 
@@ -61,12 +61,12 @@ export const usePools = ({ keyword }: { keyword: string }) => {
     if (!walletPools) return pools;
 
     return pools.map((pool) => {
-      const walletPool = walletPools.find((p) => p.id === pool.id);
+      const walletPool = walletPools.find(
+        (p) => p.id.toLowerCase() === pool.id.toLowerCase(),
+      );
       return { ...pool, ...walletPool };
     });
   }, [account, pools, walletPools]);
-
-  console.log({ mergedPools });
 
   return {
     pools: mergedPools,
