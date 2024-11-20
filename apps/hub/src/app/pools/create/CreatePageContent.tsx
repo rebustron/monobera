@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  balancerComposableStablePoolFactoryV6,
   balancerPoolCreationHelperAbi,
   useBeraJs,
   useCreatePool,
@@ -15,8 +16,6 @@ import {
 import {
   balancerDelegatedOwnershipAddress,
   balancerVaultAddress,
-  beraTokenAddress,
-  nativeTokenAddress,
 } from "@bera/config";
 import {
   ActionButton,
@@ -100,8 +99,8 @@ export default function CreatePageContent() {
               ...balancerPoolCreationHelperAbi,
               ...vaultV2Abi,
               ...(poolType === PoolType.Weighted
-                ? weightedPoolFactoryV4Abi_V2 // FIXME wrong versions
-                : composabableStablePoolV5Abi_V2),
+                ? weightedPoolFactoryV4Abi_V2
+                : balancerComposableStablePoolFactoryV6),
             ],
             ...log,
             strict: false,
