@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { usePollAllowances, type Token } from "@bera/berajs";
-import { beraTokenAddress } from "@bera/config";
 import { Address, parseUnits } from "viem";
 
 import { type TokenInput } from "./useMultipleTokenInput";
