@@ -59,6 +59,12 @@ export default function CreatePoolInput({
     )
   ) {
     filteredTokens.push(beraTokenAddress);
+  } else if (
+    selectedTokens.find(
+      (selectedToken) => selectedToken.address === beraTokenAddress,
+    )
+  ) {
+    filteredTokens.push(nativeTokenAddress);
   }
 
   return (

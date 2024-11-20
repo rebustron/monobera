@@ -31,11 +31,10 @@ import { InputWithLabel } from "@bera/ui/input";
 import { Separator } from "@bera/ui/separator";
 import {
   PoolType,
-  composabableStablePoolV5Abi_V2,
   vaultV2Abi,
   weightedPoolFactoryV4Abi_V2,
 } from "@berachain-foundation/berancer-sdk";
-import { decodeEventLog, isAddress, parseUnits, zeroAddress } from "viem";
+import { decodeEventLog, isAddress, zeroAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
 import BeraTooltip from "~/components/bera-tooltip";
