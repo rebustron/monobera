@@ -106,6 +106,7 @@ export default function DynamicPoolCreationPreview({
     message: "Approving the Pool Creation Helper...",
     onSuccess: () => {
       refreshPoolCreationApproval();
+      setErrorMessage(null);
     },
     onError: (e) => {
       setErrorMessage("Error approving relayer.");
