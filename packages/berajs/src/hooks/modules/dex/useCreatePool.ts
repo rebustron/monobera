@@ -184,7 +184,7 @@ export const useCreatePool = ({
       salt,
     } = sharedCalculations;
 
-    const gasLimit = 7920027n;
+    const gasLimit = 7920027n; // NOTE: this is metamask max, which we use for an upper limit in simulation because this is an expensive tx
 
     if (isStablePool) {
       return {
