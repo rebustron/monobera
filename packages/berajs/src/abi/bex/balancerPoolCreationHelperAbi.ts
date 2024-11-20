@@ -25,12 +25,49 @@ export const balancerPoolCreationHelperAbi = [
     inputs: [
       {
         indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+      {
+        indexed: true,
         internalType: "address",
         name: "pool",
         type: "address",
       },
     ],
-    name: "PoolCreated",
+    name: "ComposableStablePoolCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "pool",
+        type: "address",
+      },
+    ],
+    name: "WeightedPoolCreated",
     type: "event",
   },
   {
@@ -60,7 +97,7 @@ export const balancerPoolCreationHelperAbi = [
       },
       {
         internalType: "contract IERC20[]",
-        name: "tokens",
+        name: "createPoolTokens",
         type: "address[]",
       },
       {
@@ -103,6 +140,11 @@ export const balancerPoolCreationHelperAbi = [
         name: "salt",
         type: "bytes32",
       },
+      {
+        internalType: "bool",
+        name: "joinWBERAPoolWithBERA",
+        type: "bool",
+      },
     ],
     name: "createAndJoinStablePool",
     outputs: [
@@ -112,7 +154,7 @@ export const balancerPoolCreationHelperAbi = [
         type: "address",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -129,7 +171,12 @@ export const balancerPoolCreationHelperAbi = [
       },
       {
         internalType: "contract IERC20[]",
-        name: "tokens",
+        name: "createPoolTokens",
+        type: "address[]",
+      },
+      {
+        internalType: "contract IERC20[]",
+        name: "joinPoolTokens",
         type: "address[]",
       },
       {
@@ -171,7 +218,7 @@ export const balancerPoolCreationHelperAbi = [
         type: "address",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -180,6 +227,19 @@ export const balancerPoolCreationHelperAbi = [
     outputs: [
       {
         internalType: "contract IVault",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "wBERA",
+    outputs: [
+      {
+        internalType: "contract IERC20",
         name: "",
         type: "address",
       },
@@ -199,5 +259,9 @@ export const balancerPoolCreationHelperAbi = [
     ],
     stateMutability: "view",
     type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ] as const;

@@ -8,11 +8,15 @@ import {
   useCreatePool,
   useLiquidityMismatch,
   useSubgraphTokenInformations,
+  wrapNativeToken,
+  wrapNativeTokens,
   type Token,
 } from "@bera/berajs";
 import {
   balancerDelegatedOwnershipAddress,
   balancerVaultAddress,
+  beraTokenAddress,
+  nativeTokenAddress,
 } from "@bera/config";
 import {
   ActionButton,
@@ -39,7 +43,6 @@ import BeraTooltip from "~/components/bera-tooltip";
 import { usePoolWeights } from "~/b-sdk/usePoolWeights";
 import useMultipleTokenApprovalsWithSlippage from "~/hooks/useMultipleTokenApprovalsWithSlippage";
 import { TokenInput as TokenInputType } from "~/hooks/useMultipleTokenInput";
-import { usePollPoolCreationRelayerApproval } from "~/hooks/usePollPoolCreationRelayerApproval";
 import CreatePoolInput from "../components/create-pool-input";
 import DynamicPoolCreationPreview from "../components/dynamic-pool-create-preview";
 import OwnershipInput, { OwnershipType } from "../components/ownership-input";
@@ -81,7 +84,7 @@ export default function CreatePageContent() {
 
   const { data: tokenPrices, isLoading: isLoadingTokenPrices } =
     useSubgraphTokenInformations({
-      tokenAddresses: tokens.map((token) => token?.address),
+      tokenAddresses: wrapNativeTokens(tokens).map((token) => token.address),
     });
 
   async function getPoolIdFromTx(txHash: `0x${string}`) {
@@ -97,7 +100,7 @@ export default function CreatePageContent() {
               ...balancerPoolCreationHelperAbi,
               ...vaultV2Abi,
               ...(poolType === PoolType.Weighted
-                ? weightedPoolFactoryV4Abi_V2
+                ? weightedPoolFactoryV4Abi_V2 // FIXME wrong versions
                 : composabableStablePoolV5Abi_V2),
             ],
             ...log,
@@ -295,6 +298,7 @@ export default function CreatePageContent() {
           <div className="flex w-full flex-col gap-2">
             {tokens.map((token, index) => (
               <CreatePoolInput
+                // NOTE: WBERA and BERA are mutually exclusive options, we wrap BERA -> WBERA in poolCreationHelper
                 key={`token-${index}`}
                 token={token}
                 selectedTokens={tokens}
@@ -362,13 +366,16 @@ export default function CreatePageContent() {
             <ul className="divide-y divide-border rounded-lg border">
               {tokens.map((token, index) => (
                 // TODO (#): we ought to handle isLoadingTokenPrices in price display
+                // NOTE: prices for BERA (wrapped create) must be given in WBERA as that is the wrapped token's value.
                 <TokenInput
                   key={`liq-${index}`}
                   selected={token}
                   amount={token.amount}
                   isActionLoading={isLoadingTokenPrices}
-                  price={Number(tokenPrices?.[token?.address] ?? 0)} // TODO (#): this would make more sense as token.usdValue
-                  hidePrice={!tokenPrices?.[token?.address]}
+                  price={Number(
+                    tokenPrices?.[wrapNativeToken(token)?.address] ?? 0,
+                  )} // TODO (#): this would make more sense as token.usdValue
+                  hidePrice={!tokenPrices?.[wrapNativeToken(token)?.address]}
                   disabled={false}
                   setAmount={(amount) => handleTokenChange(index, { amount })}
                   onExceeding={(isExceeding) =>

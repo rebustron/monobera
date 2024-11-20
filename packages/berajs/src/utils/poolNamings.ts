@@ -1,3 +1,4 @@
+import { nativeTokenAddress } from "@bera/config";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 import { formatUnits } from "viem";
 

@@ -51,12 +51,21 @@ export default function CreatePoolInput({
     }
   };
 
+  // Do not allow the user to select BERA and WBERA as a token pair. (NOTE: BERA is wrapped during create)
+  const filteredTokens = [bgtTokenAddress];
+  if (
+    selectedTokens.find(
+      (selectedToken) => selectedToken.address === nativeTokenAddress,
+    )
+  ) {
+    filteredTokens.push(beraTokenAddress);
+  }
+
   return (
     <div className="flex w-full items-center gap-2 rounded-md border border-border px-2 py-2">
       <SelectToken
         token={token}
-        // TODO: we should handle wrapping when adding liquidity, but for pool token selection it cannot be BERA itself.
-        filter={[bgtTokenAddress, nativeTokenAddress]}
+        filter={filteredTokens}
         selectable={selectable}
         onTokenSelection={(selectedToken: Token | undefined) =>
           onTokenSelection(selectedToken)

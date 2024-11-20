@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { balancerPoolCreationHelper } from "@bera/config";
+import { balancerPoolCreationHelper, nativeTokenAddress } from "@bera/config";
 import { bexSubgraphClient } from "@bera/graphql";
 import {
   GetDedupedSubgraphPools,
@@ -11,10 +11,13 @@ import useSWRImmutable from "swr/immutable";
 import { formatUnits, keccak256, parseUnits } from "viem";
 
 import { generatePoolName, generatePoolSymbol } from "~/utils/poolNamings";
+import { wrapNativeTokens } from "~/utils/tokenWrapping";
 import { balancerPoolCreationHelperAbi } from "~/abi";
 import { ADDRESS_ZERO } from "~/config";
 import { IContractWrite } from "~/hooks/useContractWrite";
 import { TokenWithAmount } from "~/types";
+
+const DEFAULT_WEIGHTS_DUPLICATION_THRESHOLD = 0.005;
 
 interface UseCreatePoolProps {
   tokens: TokenWithAmount[];
@@ -25,6 +28,7 @@ interface UseCreatePoolProps {
   poolSymbol: string;
   poolName: string;
   amplification: number;
+  weightsDuplicationThreshold?: number;
 }
 
 interface UseCreatePoolReturn {
@@ -37,8 +41,6 @@ interface UseCreatePoolReturn {
   errorLoadingPools: boolean;
 }
 
-const WEIGHTS_DUPLICATION_THRESHOLD = 0.005; // if weights are within 0.5% of each other, we consider them a duplicate
-
 export const useCreatePool = ({
   tokens,
   normalizedWeights,
@@ -48,6 +50,7 @@ export const useCreatePool = ({
   swapFee,
   owner,
   amplification,
+  weightsDuplicationThreshold = DEFAULT_WEIGHTS_DUPLICATION_THRESHOLD,
 }: UseCreatePoolProps): UseCreatePoolReturn => {
   const {
     data: dupePool,
@@ -60,7 +63,8 @@ export const useCreatePool = ({
         return null;
       }
       try {
-        const tokensSorted = tokens
+        const wrappedTokens = wrapNativeTokens(tokens);
+        const tokensSorted = wrappedTokens
           .map((token) => token.address.toLowerCase())
           .sort((a, b) => a.localeCompare(b));
 
@@ -78,7 +82,7 @@ export const useCreatePool = ({
         const matchingPools = res.data.pools.filter((pool) => {
           return pool.tokens?.every((token) =>
             poolType === PoolType.Weighted
-              ? // in weighted pools, a dupe is if tokens and weights match EXACTLY
+              ? // in weighted pools, a dupe is if tokens match and weights match within .5% of each other
                 tokensSorted.includes(token.address) &&
                 Math.abs(
                   Number(token.weight) -
@@ -88,7 +92,7 @@ export const useCreatePool = ({
                         18,
                       ),
                     ),
-                ) < WEIGHTS_DUPLICATION_THRESHOLD
+                ) < weightsDuplicationThreshold
               : // in composable pools a dupe is if the tokens match, handling that the LP token is in the tokens list
                 tokensSorted.includes(token.address) ||
                 token.address === pool.address,
@@ -103,14 +107,17 @@ export const useCreatePool = ({
   );
 
   const [generatedPoolName, generatedPoolSymbol] = useMemo(() => {
+    // NOTE: we will never create a pool with BERA as the token, it will always get wrapped.
+    const wrappedTokens = wrapNativeTokens(tokens);
     return [
-      generatePoolName(tokens),
-      generatePoolSymbol(tokens, normalizedWeights, poolType),
+      generatePoolName(wrappedTokens),
+      generatePoolSymbol(wrappedTokens, normalizedWeights, poolType),
     ];
   }, [tokens, poolType, normalizedWeights]);
 
   const sharedCalculations = useMemo(() => {
     // Shared data preparation for both pool types
+    // NOTE: we do support native token here but it's not actually used as a pool token (it is wrapped)
     // TODO (#): add support for rate providers
     const tokensAddresses = tokens.map((token) => token.address);
     const rateProviders = tokens.map(() => ADDRESS_ZERO as `0x${string}`);
@@ -129,20 +136,38 @@ export const useCreatePool = ({
       }))
       .sort((a, b) => (a.token.toLowerCase() < b.token.toLowerCase() ? -1 : 1));
 
+    const sortedTokens = sortedData.map((item) => item.token);
+    const sortedAmountsIn = sortedData.map((item) => item.amountIn);
+    const sortedRateProviders = sortedData.map((item) => item.rateProvider);
+    const sortedWeights = sortedData.map((item) => item.weight);
+    const sortedCacheDurations = sortedData.map((item) => item.cacheDuration);
+
+    // Check if the native token is included, if so that amount becomes the value of this tx and we add it to joinPools
+    const nativeTokenIndex = sortedTokens.indexOf(nativeTokenAddress);
+    const value =
+      nativeTokenIndex !== -1 ? sortedAmountsIn[nativeTokenIndex] : 0n;
+
+    // NOTE: we would expect nativeTokenAddress is zero address, but jic...
+    const joinPoolTokens = sortedTokens.map((token) =>
+      token === nativeTokenAddress ? ADDRESS_ZERO : token,
+    );
+
     return {
-      sortedTokens: sortedData.map((item) => item.token),
-      sortedAmountsIn: sortedData.map((item) => item.amountIn),
-      sortedRateProviders: sortedData.map((item) => item.rateProvider),
-      sortedWeights: sortedData.map((item) => item.weight),
-      sortedCacheDurations: sortedData.map((item) => item.cacheDuration),
+      sortedTokens,
+      sortedAmountsIn,
+      sortedRateProviders,
+      sortedWeights,
+      sortedCacheDurations,
+      joinPoolTokens,
       swapFeePercentage,
+      value,
       salt: keccak256(Buffer.from(`${poolName}-${owner}`)),
     };
   }, [tokens, normalizedWeights, swapFee, poolName, owner]);
 
   const isStablePool =
     poolType === PoolType.ComposableStable || poolType === PoolType.MetaStable;
-  const exemptFromYieldProtocolFeeFlag = false; // NOTE: this should be false for stable pools if rate providers are 0x0
+  const exemptFromYieldProtocolFeeFlag = false;
 
   const createPoolArgs = useMemo(() => {
     if (!owner || poolName === "" || poolSymbol === "") return null;
@@ -153,12 +178,13 @@ export const useCreatePool = ({
       sortedRateProviders,
       sortedWeights,
       sortedCacheDurations,
+      joinPoolTokens,
       swapFeePercentage,
+      value,
       salt,
     } = sharedCalculations;
 
-    const value = 0n;
-    const gasLimit = 7920027n; // NOTE: this is metamask max, which we use for an upper limit in simulation because this is an expensive tx
+    const gasLimit = 7920027n;
 
     if (isStablePool) {
       return {
@@ -177,6 +203,7 @@ export const useCreatePool = ({
           sortedAmountsIn,
           owner as `0x${string}`,
           salt,
+          value > 0n, // joinWBERAPoolWithBERA flag
         ],
         value,
         gasLimit,
@@ -185,6 +212,7 @@ export const useCreatePool = ({
         "createAndJoinStablePool"
       >;
     }
+
     return {
       address: balancerPoolCreationHelper,
       abi: balancerPoolCreationHelperAbi,
@@ -193,6 +221,7 @@ export const useCreatePool = ({
         poolName,
         poolSymbol,
         sortedTokens,
+        joinPoolTokens,
         sortedWeights,
         sortedRateProviders,
         swapFeePercentage,

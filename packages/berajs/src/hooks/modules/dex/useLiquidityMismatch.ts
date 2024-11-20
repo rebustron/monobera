@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PoolType } from "@berachain-foundation/berancer-sdk";
 
+import { wrapNativeTokens } from "~/utils/tokenWrapping";
 import { SubgraphTokenInformations } from "~/actions";
 import { TokenWithAmount } from "~/types";
 
@@ -79,7 +80,9 @@ export const useLiquidityMismatch = ({
     const tokenUSDValues: number[] = [];
     let totalMismatchedLiquidityUSD = 0;
 
-    tokens.forEach((token) => {
+    const wrappedTokens = wrapNativeTokens(tokens); // NOTE: pricing will only exist for WBERA not BERA
+
+    wrappedTokens.forEach((token) => {
       const tokenPriceUSD = tokenPrices[token.address];
       const tokenAmount = parseFloat(token.amount);
       if (!tokenPriceUSD || tokenAmount <= 0) return;

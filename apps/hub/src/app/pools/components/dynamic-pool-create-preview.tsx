@@ -8,6 +8,7 @@ import {
   formatUsd,
   getSafeNumber,
   useBeraJs,
+  wrapNativeTokens,
 } from "@bera/berajs";
 import { SubgraphTokenInformations } from "@bera/berajs/actions";
 import {
@@ -173,7 +174,7 @@ export default function DynamicPoolCreationPreview({
                 height={150}
               />
               <div className="flex flex-row items-center gap-2">
-                {tokens.map((token, idx: number) => (
+                {wrapNativeTokens(tokens).map((token, idx: number) => (
                   <TokenIcon
                     key={`${token}-${idx}`}
                     address={token.address}
@@ -205,6 +206,7 @@ export default function DynamicPoolCreationPreview({
                 className="mb-2 flex items-center justify-between text-foreground"
               >
                 <div className="flex items-center gap-2">
+                  {/* FIXME: do we want to display some kind tooltip explaining the BERA -> WBERA case? */}
                   <TokenIcon address={token.address} symbol={token.symbol} />
                   <span className="font-semibold">{token.symbol}</span>
                   {poolType === PoolType.Weighted && (
