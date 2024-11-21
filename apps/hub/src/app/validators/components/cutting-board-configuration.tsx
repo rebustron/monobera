@@ -6,6 +6,17 @@ import { Button } from "@bera/ui/button";
 import { Icons } from "@bera/ui/icons";
 import { Input } from "@bera/ui/input";
 
+function generateColor(index: number, palette: number[]) {
+  return `hsl(${
+    palette[index] ? palette[index] : Math.random() * 360
+  }, 70%, 40%)`;
+}
+
+function formatDistributionValue(value: string): string {
+  const [integerPart, decimalPart] = value.split(".");
+  return decimalPart ? `${integerPart}.${decimalPart.slice(0, 2)}` : value;
+}
+
 export const CuttingBoardConfiguration = () => {
   const [gauges, setGauges] = useState<
     { address: string; distribution: number; color: number }[]
@@ -63,22 +74,8 @@ export const CuttingBoardConfiguration = () => {
           borderRadius: 8,
           spacing: 5,
           borderWidth: 0,
-          backgroundColor: gauges.map(
-            (gauge, index) =>
-              `hsl(${
-                colourPalette[index]
-                  ? colourPalette[index]
-                  : Math.random() * 360
-              }, 70%, 40%)`,
-          ),
-          hoverBorderColor: gauges.map(
-            (gauge, index) =>
-              `hsl(${
-                colourPalette[index]
-                  ? colourPalette[index]
-                  : Math.random() * 360
-              }, 70%, 40%)`,
-          ),
+          backgroundColor: gauges.map((gauge, index) => generateColor(index, colourPalette)),
+          hoverBorderColor: gauges.map((gauge, index) => generateColor(index, colourPalette)),
           // borderColor: "colours",
         },
       ],
@@ -125,16 +122,8 @@ export const CuttingBoardConfiguration = () => {
               type="number"
               value={gauge.distribution}
               onChange={(e) => {
-                const value = e.target.value;
-                const [integerPart, decimalPart] = value.split(".");
-                const formattedValue = decimalPart
-                  ? `${integerPart}.${decimalPart.slice(0, 2)}`
-                  : value;
-                handleGaugeChange(
-                  index,
-                  "distribution",
-                  parseFloat(formattedValue),
-                );
+                const formattedValue = formatDistributionValue(e.target.value);
+                handleGaugeChange(index, "distribution", parseFloat(formattedValue));
               }}
               placeholder="Distribution"
               outerClassName="w-fit"
