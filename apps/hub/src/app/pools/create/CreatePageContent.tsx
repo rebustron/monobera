@@ -28,6 +28,7 @@ import { InputWithLabel } from "@bera/ui/input";
 import { Separator } from "@bera/ui/separator";
 import {
   PoolType,
+  ZERO_ADDRESS,
   composabableStablePoolV5Abi_V2,
   vaultV2Abi,
   weightedPoolFactoryV4Abi_V2,
@@ -67,7 +68,7 @@ export default function CreatePageContent() {
   ]); // TODO: we should use useMultipleTokenInput here, but it will need weight handling and the ability to add/remove inputs
   const [poolType, setPoolType] = useState<PoolType>(PoolType.ComposableStable);
   const [swapFee, setSwapFee] = useState<number>(0.1);
-  const [owner, setOwner] = useState<string>(balancerDelegatedOwnershipAddress);
+  const [owner, setOwner] = useState<string>(ZERO_ADDRESS);
   const [poolName, setPoolName] = useState<string>("");
   const [poolSymbol, setPoolSymbol] = useState<string>("");
   const [amplification, setAmplification] = useState<number>(1); // NOTE: min is 1 max is 5000
@@ -129,7 +130,7 @@ export default function CreatePageContent() {
       type === OwnershipType.Governance
         ? balancerDelegatedOwnershipAddress
         : type === OwnershipType.Fixed
-          ? "0x0000000000000000000000000000000000000000"
+          ? ZERO_ADDRESS
           : account || zeroAddress,
     );
   };
@@ -397,6 +398,7 @@ export default function CreatePageContent() {
         </section>
 
         <OwnershipInput
+          // NOTE: disabling this means that the default (fixed) ownership type is used always
           ownershipType={ownershipType}
           owner={owner}
           onChangeOwnershipType={handleOwnershipTypeChange}
@@ -404,6 +406,7 @@ export default function CreatePageContent() {
           invalidAddressErrorMessage={invalidAddressErrorMessage}
           swapFee={swapFee}
           onSwapFeeChange={setSwapFee}
+          poolType={poolType}
         />
 
         <section className="flex w-full flex-col gap-4">

@@ -6,6 +6,7 @@ import { cn } from "@bera/ui";
 import { Alert, AlertDescription, AlertTitle } from "@bera/ui/alert";
 import { Card } from "@bera/ui/card";
 import { InputWithLabel } from "@bera/ui/input";
+import { PoolType } from "@berachain-foundation/berancer-sdk";
 
 import BeraTooltip from "~/components/bera-tooltip";
 
@@ -21,8 +22,9 @@ interface OwnershipInputProps {
   onChangeOwnershipType: (type: OwnershipType) => void;
   onOwnerChange: (address: string) => void;
   invalidAddressErrorMessage: string | null;
-  swapFee: number;
   onSwapFeeChange: (fee: number) => void;
+  swapFee: number;
+  poolType: PoolType;
 }
 
 const OwnershipInput: React.FC<OwnershipInputProps> = ({
@@ -33,13 +35,28 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
   invalidAddressErrorMessage,
   swapFee,
   onSwapFeeChange,
+  poolType,
 }) => {
+  // NOTE: Balancer support more types of ownership than the ones we are supporting here: Delegated, Fixed and Custom.
+  // ... you can still create Pools with those types of ownership from the contract, but we are not supporting them in the UI.
+
+  let predefinedFees = [0.3, 0.5, 1];
+  if (
+    poolType === PoolType.ComposableStable ||
+    poolType === PoolType.MetaStable
+  ) {
+    predefinedFees = [0.01, 0.05, 0.1];
+  }
   return (
     <section className="flex w-full flex-col gap-4">
       <h3 className="self-start text-3xl font-semibold">Set Swap Fee</h3>
-      <SwapFeeInput initialFee={swapFee} onFeeChange={onSwapFeeChange} />
+      <SwapFeeInput
+        initialFee={swapFee}
+        onFeeChange={onSwapFeeChange}
+        predefinedFees={predefinedFees}
+      />
 
-      <div className="flex items-center gap-1">
+      <div className="flex hidden items-center gap-1">
         <div className="self-start font-semibold">Fee Ownership</div>
         <div className="pt-[-1]">
           <BeraTooltip
@@ -52,7 +69,7 @@ const OwnershipInput: React.FC<OwnershipInputProps> = ({
         </div>
       </div>
 
-      <div className="flex w-full flex-row gap-6">
+      <div className="flex hidden w-full flex-row gap-6">
         <Card
           onClick={() => onChangeOwnershipType(OwnershipType.Governance)}
           className={cn(

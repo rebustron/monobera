@@ -5,18 +5,18 @@ import { cn } from "@bera/ui";
 import { Input } from "@bera/ui/input";
 
 interface SwapFeeInputProps {
+  onFeeChange: (fee: number) => void;
   initialFee?: number;
-  onFeeChange?: (fee: number) => void;
+  predefinedFees?: number[];
 }
 
 export function SwapFeeInput({
   initialFee = 0,
   onFeeChange,
+  predefinedFees = [0.1, 0.2, 0.3],
 }: SwapFeeInputProps) {
   const [fee, setFee] = useState<number>(initialFee);
   const [isInvalid, setIsInvalid] = useState<boolean>(false);
-
-  const predefinedFees = [0.1, 0.2, 0.3];
 
   const handleFeeChange = (value: string) => {
     const parsedValue = parseFloat(value);
@@ -25,7 +25,7 @@ export function SwapFeeInput({
     // Validate the fee range and update the invalid state
     if (parsedValue >= 0.00001 && parsedValue <= 10) {
       setIsInvalid(false);
-      onFeeChange?.(parsedValue); // Pass valid fee to parent, if callback provided
+      onFeeChange(parsedValue);
     } else {
       setIsInvalid(true);
     }
@@ -34,12 +34,12 @@ export function SwapFeeInput({
   const handlePredefinedFeeClick = (value: number) => {
     setFee(value);
     setIsInvalid(false);
-    onFeeChange?.(value);
+    onFeeChange(value);
   };
 
   return (
     <section className="flex w-full flex-col gap-6">
-      <div className="relative flex flex-row gap-6">
+      <div className="relative flex flex-row gap-6 text-sm">
         <Input
           type="number"
           variant="black"
@@ -69,7 +69,7 @@ export function SwapFeeInput({
               key={preset}
               onClick={() => handlePredefinedFeeClick(preset)}
               className={cn(
-                "rounded-md border px-4 py-2",
+                "w-20 rounded-md border px-4 py-2",
                 fee === preset ? "border-info-foreground" : "border-border",
               )}
               aria-label="Swap Fee Input"
