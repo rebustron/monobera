@@ -22,7 +22,7 @@ export const PoolCreateRewardVault = () => {
               variant="outline"
               size="md"
               as={Link}
-              href="/vaults/create-gauge/"
+              href="/vaults/create/"
             >
               Create
             </Button>

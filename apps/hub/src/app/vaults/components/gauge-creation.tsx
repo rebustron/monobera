@@ -4,10 +4,7 @@ import { Icons } from "@bera/ui/icons";
 
 export const GaugeCreation = () => {
   return (
-    <Link
-      className="mb-10 rounded-sm border px-4 py-6"
-      href="/vaults/create-gauge"
-    >
+    <Link className="mb-10 rounded-sm border px-4 py-6" href="/vaults/create">
       <div className="flex items-center gap-3 text-2xl font-semibold leading-loose">
         Add your protocol's Reward Vault <Icons.arrowRight />
       </div>
