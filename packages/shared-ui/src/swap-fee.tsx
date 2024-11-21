@@ -19,15 +19,17 @@ export function SwapFeeInput({
   const [isInvalid, setIsInvalid] = useState<boolean>(false);
 
   const handleFeeChange = (value: string) => {
-    const parsedValue = parseFloat(value);
-    setFee(parsedValue);
+    const rawValue = value.replace("%", ""); // NOTE: we need to remove '%' for parsing the actual value
+    const parsedValue = parseFloat(rawValue);
 
-    // Validate the fee range and update the invalid state
-    if (parsedValue >= 0.00001 && parsedValue <= 10) {
-      setIsInvalid(false);
-      onFeeChange(parsedValue);
-    } else {
-      setIsInvalid(true);
+    if (!Number(parsedValue)) {
+      setFee(parsedValue);
+      if (parsedValue >= 0.00001 && parsedValue <= 10) {
+        setIsInvalid(false);
+        onFeeChange(parsedValue);
+      } else {
+        setIsInvalid(true);
+      }
     }
   };
 
@@ -38,38 +40,32 @@ export function SwapFeeInput({
   };
 
   return (
-    <section className="flex w-full flex-col gap-6">
-      <div className="relative flex flex-row gap-6 text-sm">
+    <section
+      className={cn(
+        "flex w-full flex-col gap-6 rounded-md border border-border",
+        isInvalid
+          ? "border-destructive-foreground text-destructive-foreground"
+          : "border-border",
+      )}
+    >
+      <div className="relative flex h-14 flex-row items-center gap-6 text-sm">
         <Input
-          type="number"
+          type="text"
           variant="black"
-          value={fee}
+          value={`${fee}%`}
           onChange={(e) => handleFeeChange(e.target.value)}
           placeholder="Enter swap fee"
-          className={cn(
-            "w-full rounded-md border bg-transparent p-2 pr-10",
-            isInvalid
-              ? "border-destructive-foreground text-destructive-foreground"
-              : "border-border",
-          )}
+          className="w-full border-none bg-transparent pr-10 font-semibold"
           aria-label="Swap Fee Input"
         />
-        <span
-          className={cn(
-            "absolute left-1/2 top-1/2 -translate-y-1/2 transform text-gray-500",
-            isInvalid && "text-destructive-foreground",
-          )}
-        >
-          %
-        </span>
-        <div className="flex gap-2">
+        <div className="flex gap-1 pr-4">
           {predefinedFees.map((preset) => (
             <button
               type="button"
               key={preset}
               onClick={() => handlePredefinedFeeClick(preset)}
               className={cn(
-                "w-20 rounded-md border px-4 py-2",
+                "h-8 w-12 rounded-xs border text-xs font-medium text-muted-foreground",
                 fee === preset ? "border-info-foreground" : "border-border",
               )}
               aria-label="Swap Fee Input"
