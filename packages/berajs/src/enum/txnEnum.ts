@@ -50,5 +50,5 @@ export enum TransactionActionType {
   REFER = "Refer",
 
   // POL
-  CREATE_REWARDS_VAULT = "Create Rewards Vault",
+  CREATE_REWARDS_VAULT = "Create Reward Vault",
 }

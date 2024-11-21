@@ -65,7 +65,7 @@ export enum ProposalErrorCodes {
   MUST_BE_HTTPS = "Must be https",
   INVALID_BASEPATH = "Must be a berachain forum link",
   /**
-   * Mainly used when it's not a rewards vault
+   * Mainly used when it's not a reward vault
    */
   INVALID_CONTRACT = "This is not a valid contract",
 }

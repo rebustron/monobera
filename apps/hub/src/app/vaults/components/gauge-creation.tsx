@@ -9,7 +9,7 @@ export const GaugeCreation = () => {
       href="/vaults/create-gauge"
     >
       <div className="flex items-center gap-3 text-2xl font-semibold leading-loose">
-        Add your protocol's Rewards Vault <Icons.arrowRight />
+        Add your protocol's Reward Vault <Icons.arrowRight />
       </div>
       <div className="text-sm font-medium leading-5 text-muted-foreground">
         LPs will be able to deposit your protocol receipt and earn BGT rewards

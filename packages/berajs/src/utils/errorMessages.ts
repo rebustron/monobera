@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { PublicClient } from "viem";
+
 import { clientToProvider } from "./ethers-client-to-provider";
 
 interface ErrorType {
@@ -54,7 +55,7 @@ const errorMsgMap: ErrorMessages = {
     REWARD_VAULT_FACTORY: {
       keywords: ["VaultAlreadyExists"],
       errorMSG:
-        "Failed to create rewards vault. A vault already exists with this staking token.",
+        "Failed to create reward vault. A vault already exists with this staking token.",
     },
   },
   PERPS: {

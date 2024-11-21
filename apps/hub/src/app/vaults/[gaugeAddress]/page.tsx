@@ -9,7 +9,7 @@ import { GaugeDetails } from "./components/gauge-details";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Gauge",
+    title: "Reward Vault",
   };
 }
 

@@ -55,7 +55,7 @@ export const HeroCards: React.FC = () => {
     },
     {
       image: `${cloudinaryUrl}/Station/rgytgfadryf0gotnwkdi.jpg`,
-      title: "Rewards Vaults",
+      title: "Reward Vaults",
       subtitle: "Deposit receipt tokens to earn rewards",
       link: "/vaults",
     },

@@ -19,7 +19,7 @@ export const CuttingBoardDisplay = ({
 }: {
   cuttingBoard: CuttingBoardWeight | undefined;
 }) => {
-  if (!cuttingBoard) return <div>No Rewards Vaults Found</div>;
+  if (!cuttingBoard) return <div>No Reward Vaults Found</div>;
   return (
     <Link
       className="flex  h-full w-[160px] items-center justify-start gap-2"

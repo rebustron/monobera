@@ -1,7 +1,7 @@
 import { isIPFS } from "@bera/config";
 
 /**
- * Returns the path for a rewards vault under the HUB website.
+ * Returns the path for a reward vault under the HUB website.
  *
  * It's IPFS compatible.
  * @returns

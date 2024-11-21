@@ -28,7 +28,7 @@ export const ValidatorConfiguration = ({
       <Card className="flex flex-col gap-1 p-4">
         <span className="text-2xl font-bold">Berachef Weight</span>
         <span className="text-sm text-muted-foreground">
-          Configure your rewards vaults distribution weighting
+          Configure your reward vaults distribution weighting
         </span>
         <CuttingBoardConfiguration />
       </Card>

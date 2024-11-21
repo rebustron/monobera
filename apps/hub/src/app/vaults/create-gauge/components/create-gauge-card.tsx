@@ -34,7 +34,7 @@ export const CreateGaugeCard: React.FC = () => {
   const router = useRouter();
 
   const { write, ModalPortal } = useTxn({
-    message: "Creating Rewards Vault",
+    message: "Creating Reward Vault",
     actionType: TransactionActionType.CREATE_REWARDS_VAULT,
     onSuccess: async (txHash: string) => {
       console.log("Success", txHash);
@@ -167,7 +167,7 @@ export const CreateGaugeCard: React.FC = () => {
               isLoadingRewardVault || !!rewardVault || !isAddress(targetAddress)
             }
           >
-            Create Rewards Vault
+            Create Reward Vault
           </Button>
         </CardContent>
       </Card>

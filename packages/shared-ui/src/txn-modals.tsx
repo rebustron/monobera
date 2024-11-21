@@ -196,7 +196,7 @@ export const AddLiquiditySuccess = ({
         </span>
         {rewardsVaultUrl ? (
           <Button as={Link} href={rewardsVaultUrl} className="w-full">
-            Stake in rewards vault
+            Stake in reward vault
           </Button>
         ) : null}
         <Button

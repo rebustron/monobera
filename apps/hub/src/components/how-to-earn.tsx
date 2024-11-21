@@ -114,7 +114,7 @@ export const HowToEarn = () => {
             className="underline"
             rel="noreferrer"
           >
-            Rewards Vaults
+            Reward Vaults
           </Link>
         </>
       ),
@@ -131,7 +131,7 @@ export const HowToEarn = () => {
             className="underline"
             rel="noreferrer"
           >
-            Rewards Vaults
+            Reward Vaults
           </Link>
         </>
       ),
@@ -148,7 +148,7 @@ export const HowToEarn = () => {
             className="underline"
             rel="noreferrer"
           >
-            Rewards Vault
+            Reward Vault
           </Link>
         </>
       ),
